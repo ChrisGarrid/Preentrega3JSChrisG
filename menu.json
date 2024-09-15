@@ -1,0 +1,7 @@
+[
+    { "nombre": "Sushi", "precio": 12000 },
+    { "nombre": "Tempura", "precio": 8000 },
+    { "nombre": "Ramen", "precio": 9000 },
+    { "nombre": "Yakitori", "precio": 6000 },
+    { "nombre": "Sashimi", "precio": 10000 }
+]

@@ -1,0 +1,193 @@
+/* Reseteo de márgenes y padding para asegurar consistencia entre navegadores */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    background-image: url('ruta-del-fondo.jpg'); /* Reemplaza con la ruta de tu imagen de fondo */
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+header {
+    background-color: rgba(0, 0, 0, 0.8);
+    padding: 10px 20px;
+    width: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+}
+
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo {
+    color: white;
+    text-decoration: none;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.nav-links {
+    list-style: none;
+    display: flex;
+}
+
+.nav-links li {
+    margin-left: 20px;
+}
+
+.nav-links a {
+    color: white;
+    text-decoration: none;
+    font-size: 16px;
+    transition: color 0.3s ease;
+}
+
+.nav-links a:hover {
+    color: #007BFF;
+}
+
+.menu-toggle {
+    display: none;
+    font-size: 24px;
+    color: white;
+}
+
+/* Estilo del contenedor principal */
+.container {
+    background-color: rgba(222, 148, 148, 0.9);
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    width: 90%;
+    max-width: 500px;
+    padding: 20px;
+    text-align: center;
+    margin-top: 100px; /* Para evitar que el header tape el contenido */
+}
+
+h1 {
+    margin-bottom: 20px;
+    font-size: 22px;
+    color: #333;
+}
+
+.form-group {
+    margin-bottom: 15px;
+    text-align: left;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    color: #555;
+}
+
+.form-group input,
+.form-group select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+button {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 15px;
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+.reservation-list {
+    margin-top: 20px;
+    text-align: left;
+}
+
+.reservation-list ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.reservation-list li {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+}
+
+.reservation-list li:last-child {
+    border-bottom: none;
+}
+
+/* Estilos para pantallas medianas (tablets) */
+@media (min-width: 600px) {
+    .container {
+        max-width: 600px;
+        padding: 25px;
+    }
+
+    h1 {
+        font-size: 24px;
+    }
+
+    button {
+        padding: 14px;
+    }
+}
+
+/* Estilos para pantallas grandes (desktops) */
+@media (min-width: 1024px) {
+    .container {
+        max-width: 800px;
+        padding: 30px;
+    }
+
+    h1 {
+        font-size: 26px;
+    }
+
+    button {
+        padding: 16px;
+        font-size: 18px;
+    }
+
+    .form-group label {
+        font-size: 18px;
+    }
+
+    .form-group input,
+    .form-group select {
+        font-size: 18px;
+        padding: 12px;
+    }
+}
+/* Estilos generales y responsivos ya mencionados */
+
+/* Estilo del botón deshabilitado */
+button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}

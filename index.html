@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Restaurante</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Header con opciones de navegación -->
+    <header>
+        <nav class="navbar">
+            <a href="index.html" class="logo">Restaurante</a>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="menu.html">Menú</a></li>
+                <li><a href="reservations.html">Reservas</a></li>
+                <li><a href="about.html">Sobre Nosotros</a></li>
+                <li><a href="contact.html">Contacto</a></li>
+            </ul>
+            <div class="menu-toggle">
+                ☰
+            </div>
+        </nav>
+    </header>
+
+    <!-- Contenedor principal para las reservas -->
+    <div class="container">
+        <h1>Gestor de Reservas</h1>
+
+        <!-- Formulario para realizar la reserva -->
+        <div id="reservationForm" class="form-group">
+            <label for="clientName">Nombre del Cliente:</label>
+            <input type="text" id="clientName" required>
+
+            <label for="numOfGuests">Número de Invitados:</label>
+            <input type="number" id="numOfGuests" required>
+
+            <label for="time">Hora de la Reserva:</label>
+            <input type="time" id="time" required>
+
+            <button onclick="addReservation()">Agregar Reserva</button>
+        </div>
+
+        <!-- Formulario para seleccionar platos del menú -->
+        <div id="menuForm" class="form-group" style="display:none;">
+            <h2>Menú</h2>
+            <p id="dishLimitMessage">Selecciona los platos (máximo: <span id="maxDishes"></span> platos):</p>
+            <div id="dishOptions">
+                <!-- Inputs numéricos cargados dinámicamente desde JSON -->
+            </div>
+            <button id="confirmOrderBtn" onclick="addMenu()" disabled>Confirmar Pedido</button>
+        </div>
+
+        <!-- Mensaje de confirmación -->
+        <div id="confirmationMessage" class="form-group" style="display:none;">
+            <h2>Reserva Añadida Exitosamente</h2>
+            <p id="confirmationText"></p>
+            <button onclick="newReservation()">Realizar Otra Reserva</button>
+            <button onclick="acceptReservation()">Aceptar</button>
+        </div>
+
+        <button onclick="showReservations()">Mostrar Reservas</button>
+        <div id="reservationList" class="reservation-list"></div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
