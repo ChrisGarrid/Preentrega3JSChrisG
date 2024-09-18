@@ -3,11 +3,37 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Cargar el menú desde un archivo JSON local
     fetch('menu.json')
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Error al cargar el menú. Verifique que el archivo JSON esté en la ubicación correcta.');
+            }
+            return response.json();
+        })
         .then(data => {
             const dishOptions = document.getElementById('dishOptions');
+            
+            if (!dishOptions) {
+                console.error('El contenedor de opciones de platos no está presente en el DOM.');
+                return;
+            }
+
+            // Iterar sobre cada plato y renderizar su contenido
             data.forEach(dish => {
+                // Crear contenedor para cada plato
+                const dishContainer = document.createElement('div');
+                dishContainer.className = 'dish-container';
+
+                // Crear imagen
+                const image = document.createElement('img');
+                image.src = dish.imagen;
+                image.alt = dish.nombre;
+                image.className = 'dish-image';
+
+                // Crear label para nombre y precio
                 const label = document.createElement('label');
+                label.textContent = `${dish.nombre} - $${dish.precio}`;
+
+                // Crear input para cantidad
                 const input = document.createElement('input');
                 input.type = 'number';
                 input.min = 0;
@@ -15,13 +41,22 @@ document.addEventListener('DOMContentLoaded', function () {
                 input.dataset.dish = dish.nombre;
                 input.addEventListener('input', validateDishSelection);
 
-                label.textContent = `${dish.nombre} - $${dish.precio}`;
-                label.appendChild(input);
-                dishOptions.appendChild(label);
-                dishOptions.appendChild(document.createElement('br'));
+                // Añadir imagen, label e input al contenedor del plato
+                dishContainer.appendChild(image);
+                dishContainer.appendChild(label);
+                dishContainer.appendChild(input);
+
+                // Añadir el contenedor del plato al contenedor de opciones de platos
+                dishOptions.appendChild(dishContainer);
+                dishOptions.appendChild(document.createElement('br')); // Saltos de línea entre platos
             });
+        })
+        .catch(error => {
+            console.error('Error cargando el menú:', error);
+            alert('No se pudo cargar el menú. Por favor, intente nuevamente.');
         });
 
+    // Clases para manejar las reservas y platos
     class Reservation {
         constructor(clientName, numOfGuests, time) {
             this.clientName = clientName;
