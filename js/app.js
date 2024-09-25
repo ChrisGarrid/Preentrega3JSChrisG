@@ -77,33 +77,46 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    class ReservationManager {
-        constructor() {
-            this.reservations = [];
-        }
-
-        addReservation(reservation) {
-            const reservationsAtThisHour = this.getReservationsByHour(reservation.time);
-            return reservationsAtThisHour.length >= RESERVATION_LIMIT_PER_HOUR ? false : (this.reservations.push(reservation), true);
-        }
-
-        getReservationsByHour(time) {
-            return this.reservations.filter(({ time: t }) => t === time);
-        }
-
-        showReservations() {
-            const reservationList = document.getElementById('reservationList');
-            reservationList.innerHTML = ''; // Limpiar la lista antes de mostrar
-            this.reservations.length === 0
-                ? reservationList.innerText = "No hay reservas en la lista de hoy."
-                : this.reservations.forEach(reservation => {
-                    const listItem = document.createElement('li');
-                    listItem.textContent = reservation.showInfo();
-                    reservationList.appendChild(listItem);
-                });
-        }
+// Clase para gestionar las reservas con Local Storage
+class ReservationManager {
+    constructor() {
+        this.reservations = JSON.parse(localStorage.getItem('reservations')) || [];
+        // Asegúrate de que las reservas sean instancias de Reservation
+        this.reservations = this.reservations.map(res => {
+            return Object.assign(new Reservation(), res);
+        });
     }
 
+    // Método para añadir una reserva
+    addReservation(reservation) {
+        const reservationsAtThisHour = this.getReservationsByHour(reservation.time);
+        if (reservationsAtThisHour.length >= RESERVATION_LIMIT_PER_HOUR) {
+            return false; // Si el límite de reservas ha sido alcanzado
+        }
+
+        // Añadir la reserva al array de reservas
+        this.reservations.push(reservation);
+        localStorage.setItem('reservations', JSON.stringify(this.reservations));
+        console.log('Reservas en Local Storage:', this.reservations); // Para depuración
+        return true;
+    }
+
+    // Mostrar las reservas en el DOM
+    showReservations() {
+        const reservationList = document.getElementById('reservationList');
+        reservationList.innerHTML = ''; // Limpiar la lista antes de mostrar
+        if (this.reservations.length === 0) {
+            reservationList.innerText = "No hay reservas en la lista de hoy.";
+        } else {
+            this.reservations.forEach(reservation => {
+                const listItem = document.createElement('li');
+                listItem.textContent = reservation.showInfo();
+                reservationList.appendChild(listItem);
+            });
+        }
+    }
+}
+    // Crear una instancia de ReservationManager
     const manager = new ReservationManager();
     let currentReservation = null;
 
@@ -184,3 +197,5 @@ document.addEventListener('DOMContentLoaded', function () {
         document.querySelector('.navbar').classList.toggle('active');
     });
 });
+console.log("Platos seleccionados:", selectedDishes);
+console.log("Reservas actuales:", manager.reservations);
