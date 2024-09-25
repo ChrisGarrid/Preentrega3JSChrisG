@@ -19,21 +19,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
             // Iterar sobre cada plato y renderizar su contenido
             data.forEach(dish => {
-                // Crear contenedor para cada plato
                 const dishContainer = document.createElement('div');
                 dishContainer.className = 'dish-container';
 
-                // Crear imagen
                 const image = document.createElement('img');
                 image.src = dish.imagen;
                 image.alt = dish.nombre;
                 image.className = 'dish-image';
 
-                // Crear label para nombre y precio
                 const label = document.createElement('label');
                 label.textContent = `${dish.nombre} - $${dish.precio}`;
 
-                // Crear input para cantidad
                 const input = document.createElement('input');
                 input.type = 'number';
                 input.min = 0;
@@ -41,12 +37,10 @@ document.addEventListener('DOMContentLoaded', function () {
                 input.dataset.dish = dish.nombre;
                 input.addEventListener('input', validateDishSelection);
 
-                // Añadir imagen, label e input al contenedor del plato
                 dishContainer.appendChild(image);
                 dishContainer.appendChild(label);
                 dishContainer.appendChild(input);
 
-                // Añadir el contenedor del plato al contenedor de opciones de platos
                 dishOptions.appendChild(dishContainer);
                 dishOptions.appendChild(document.createElement('br')); // Saltos de línea entre platos
             });
@@ -56,7 +50,7 @@ document.addEventListener('DOMContentLoaded', function () {
             alert('No se pudo cargar el menú. Por favor, intente nuevamente.');
         });
 
-    // Clases para manejar las reservas y platos
+    // Clase para manejar reservas
     class Reservation {
         constructor(clientName, numOfGuests, time) {
             this.clientName = clientName;
@@ -77,76 +71,88 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-// Clase para gestionar las reservas con Local Storage
-class ReservationManager {
-    constructor() {
-        this.reservations = JSON.parse(localStorage.getItem('reservations')) || [];
-        // Asegúrate de que las reservas sean instancias de Reservation
-        this.reservations = this.reservations.map(res => {
-            return Object.assign(new Reservation(), res);
-        });
-    }
-
-    // Método para añadir una reserva
-    addReservation(reservation) {
-        const reservationsAtThisHour = this.getReservationsByHour(reservation.time);
-        if (reservationsAtThisHour.length >= RESERVATION_LIMIT_PER_HOUR) {
-            return false; // Si el límite de reservas ha sido alcanzado
+    // Clase para gestionar reservas y usar Local Storage
+    class ReservationManager {
+        constructor() {
+            // Cargar las reservas desde Local Storage o inicializar un array vacío
+            this.reservations = JSON.parse(localStorage.getItem('reservations')) || [];
+            // Convertir las reservas almacenadas en instancias de la clase Reservation
+            this.reservations = this.reservations.map(res => new Reservation(res.clientName, res.numOfGuests, res.time));
         }
 
-        // Añadir la reserva al array de reservas
-        this.reservations.push(reservation);
-        localStorage.setItem('reservations', JSON.stringify(this.reservations));
-        console.log('Reservas en Local Storage:', this.reservations); // Para depuración
-        return true;
-    }
+        // Añadir una reserva nueva y actualizar Local Storage
+        addReservation(reservation) {
+            const reservationsAtThisHour = this.getReservationsByHour(reservation.time);
+            if (reservationsAtThisHour.length >= RESERVATION_LIMIT_PER_HOUR) {
+                return false;
+            }
+            this.reservations.push(reservation);
+            localStorage.setItem('reservations', JSON.stringify(this.reservations)); // Guardar en Local Storage
+            console.log('Reservas guardadas en Local Storage:', this.reservations); // Depuración
+            return true;
+        }
 
-    // Mostrar las reservas en el DOM
-    showReservations() {
-        const reservationList = document.getElementById('reservationList');
-        reservationList.innerHTML = ''; // Limpiar la lista antes de mostrar
-        if (this.reservations.length === 0) {
-            reservationList.innerText = "No hay reservas en la lista de hoy.";
-        } else {
-            this.reservations.forEach(reservation => {
-                const listItem = document.createElement('li');
-                listItem.textContent = reservation.showInfo();
-                reservationList.appendChild(listItem);
-            });
+        // Obtener las reservas por hora
+        getReservationsByHour(time) {
+            return this.reservations.filter(({ time: t }) => t === time);
+        }
+
+        // Mostrar todas las reservas en el DOM
+        showReservations() {
+            const reservationList = document.getElementById('reservationList');
+            reservationList.innerHTML = ''; // Limpiar la lista antes de mostrar
+
+            if (this.reservations.length === 0) {
+                reservationList.innerText = "No hay reservas en la lista de hoy.";
+            } else {
+                this.reservations.forEach(reservation => {
+                    const listItem = document.createElement('li');
+                    listItem.textContent = reservation.showInfo();
+                    reservationList.appendChild(listItem);
+                });
+            }
         }
     }
-}
-    // Crear una instancia de ReservationManager
+
     const manager = new ReservationManager();
+    manager.showReservations(); // Mostrar reservas almacenadas al cargar la página
+
     let currentReservation = null;
 
+    // Función para añadir una nueva reserva
     window.addReservation = function () {
         const clientName = document.getElementById('clientName').value;
         const numOfGuests = document.getElementById('numOfGuests').value;
         const time = document.getElementById('time').value;
 
-        clientName && numOfGuests && time
-            ? (
-                currentReservation = new Reservation(clientName, numOfGuests, time),
-                document.getElementById('menuForm').style.display = 'block',
-                document.getElementById('reservationForm').style.display = 'none',
-                document.getElementById('maxDishes').textContent = numOfGuests
-            )
-            : alert("Por favor, completa todos los campos de la reserva.");
-    }
+        if (!clientName || !numOfGuests || !time) {
+            alert("Por favor, completa todos los campos de la reserva.");
+            return;
+        }
 
+        currentReservation = new Reservation(clientName, numOfGuests, time);
+        document.getElementById('menuForm').style.display = 'block';
+        document.getElementById('reservationForm').style.display = 'none';
+        document.getElementById('maxDishes').textContent = numOfGuests;
+    };
+
+    // Validar la selección de platos
     function validateDishSelection() {
         const dishInputs = document.querySelectorAll('#dishOptions input[type="number"]');
         const totalDishes = Array.from(dishInputs).reduce((total, input) => total + parseInt(input.value), 0);
         const confirmOrderBtn = document.getElementById('confirmOrderBtn');
 
-        totalDishes > parseInt(currentReservation.numOfGuests)
-            ? confirmOrderBtn.disabled = true
-            : confirmOrderBtn.disabled = totalDishes !== parseInt(currentReservation.numOfGuests);
-
-        confirmOrderBtn.style.backgroundColor = confirmOrderBtn.disabled ? '#ccc' : '#007BFF';
+        if (totalDishes > parseInt(currentReservation.numOfGuests)) {
+            confirmOrderBtn.disabled = true;
+            confirmOrderBtn.style.backgroundColor = '#ccc';
+            alert('No puedes pedir más platos que el número de invitados.');
+        } else {
+            confirmOrderBtn.disabled = totalDishes !== parseInt(currentReservation.numOfGuests);
+            confirmOrderBtn.style.backgroundColor = confirmOrderBtn.disabled ? '#ccc' : '#007BFF';
+        }
     }
 
+    // Añadir los platos seleccionados y guardar la reserva
     window.addMenu = function () {
         const dishInputs = document.querySelectorAll('#dishOptions input[type="number"]');
         const selectedDishes = Array.from(dishInputs)
@@ -160,20 +166,30 @@ class ReservationManager {
             const success = currentReservation.addDishes(selectedDishes);
             const reservationAdded = success && manager.addReservation(currentReservation);
 
-            reservationAdded
-                ? showConfirmationMessage(currentReservation.showInfo())
-                : alert(`No se puede añadir la reserva. Se ha alcanzado el límite de ${RESERVATION_LIMIT_PER_HOUR} reservas para la hora ${currentReservation.time}.`);
+            if (reservationAdded) {
+                showConfirmationMessage(currentReservation.showInfo());
+            } else {
+                alert(`No se puede añadir la reserva. Se ha alcanzado el límite de ${RESERVATION_LIMIT_PER_HOUR} reservas para la hora ${currentReservation.time}.`);
+            }
         } else {
             alert("Por favor, selecciona al menos un plato.");
         }
-    }
+    };
 
+    // Mostrar mensaje de confirmación
     function showConfirmationMessage(info) {
         document.getElementById('menuForm').style.display = 'none';
         document.getElementById('confirmationMessage').style.display = 'block';
         document.getElementById('confirmationText').textContent = info;
     }
 
+    // Función para aceptar la reserva actual
+    window.acceptReservation = function () {
+        document.getElementById('confirmationMessage').style.display = 'none';
+        alert("Reserva aceptada.");
+    };
+
+    // Función para permitir una nueva reserva
     window.newReservation = function () {
         document.getElementById('confirmationMessage').style.display = 'none';
         document.getElementById('reservationForm').style.display = 'block';
@@ -181,21 +197,15 @@ class ReservationManager {
         document.getElementById('numOfGuests').value = '';
         document.getElementById('time').value = '';
         document.querySelectorAll('#dishOptions input[type="number"]').forEach(input => input.value = 0);
-    }
+    };
 
-    window.acceptReservation = function () {
-        document.getElementById('confirmationMessage').style.display = 'none';
-        alert("Reserva aceptada.");
-    }
-
+    // Mostrar las reservas gestionadas
     window.showReservations = function () {
         manager.showReservations();
-    }
+    };
 
     // Funcionalidad del botón de toggle para dispositivos móviles
     document.querySelector('.menu-toggle').addEventListener('click', function () {
         document.querySelector('.navbar').classList.toggle('active');
     });
 });
-console.log("Platos seleccionados:", selectedDishes);
-console.log("Reservas actuales:", manager.reservations);
